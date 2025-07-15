@@ -6,11 +6,106 @@
     <title>Mapa Karlína</title>
     <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        /* Untitled UI Design System Styles */
+        :root {
+            /* Colors */
+            --gray-25: #FCFCFD;
+            --gray-50: #F9FAFB;
+            --gray-100: #F2F4F7;
+            --gray-200: #EAECF0;
+            --gray-300: #D0D5DD;
+            --gray-400: #98A2B3;
+            --gray-500: #667085;
+            --gray-600: #475467;
+            --gray-700: #344054;
+            --gray-800: #1D2939;
+            --gray-900: #101828;
+            
+            --primary-25: #F5FAFF;
+            --primary-50: #EFF8FF;
+            --primary-100: #D1E9FF;
+            --primary-200: #B2DDFF;
+            --primary-300: #84CAFF;
+            --primary-400: #53B1FD;
+            --primary-500: #2E90FA;
+            --primary-600: #1570EF;
+            --primary-700: #175CD3;
+            --primary-800: #1849A9;
+            --primary-900: #194185;
+            
+            /* Status colors */
+            --success-25: #F6FEF9;
+            --success-50: #ECFDF3;
+            --success-100: #D1FADF;
+            --success-200: #A6F4C5;
+            --success-300: #6CE9A6;
+            --success-400: #32D583;
+            --success-500: #12B76A;
+            --success-600: #039855;
+            --success-700: #027A48;
+            --success-800: #05603A;
+            --success-900: #054F31;
+            
+            --warning-25: #FFFCF5;
+            --warning-50: #FFFAEB;
+            --warning-100: #FEF0C7;
+            --warning-200: #FEDF89;
+            --warning-300: #FEC84B;
+            --warning-400: #FDB022;
+            --warning-500: #F79009;
+            --warning-600: #DC6803;
+            --warning-700: #B54708;
+            --warning-800: #93370D;
+            --warning-900: #7A2E0E;
+            
+            --error-25: #FFFBFA;
+            --error-50: #FEF3F2;
+            --error-100: #FEE4E2;
+            --error-200: #FECDCA;
+            --error-300: #FDA29B;
+            --error-400: #F97066;
+            --error-500: #F04438;
+            --error-600: #D92D20;
+            --error-700: #B42318;
+            --error-800: #912018;
+            --error-900: #7A271A;
+            
+            /* Typography */
+            --text-xs: 12px;
+            --text-sm: 14px;
+            --text-md: 16px;
+            --text-lg: 18px;
+            
+            /* Spacing */
+            --spacing-1: 4px;
+            --spacing-2: 8px;
+            --spacing-3: 12px;
+            --spacing-4: 16px;
+            --spacing-5: 20px;
+            --spacing-6: 24px;
+            
+            /* Border radius */
+            --radius-xs: 2px;
+            --radius-sm: 4px;
+            --radius-md: 6px;
+            --radius-lg: 8px;
+            --radius-xl: 12px;
+            
+            /* Shadows */
+            --shadow-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+            --shadow-sm: 0px 1px 2px 0px rgba(16, 24, 40, 0.06), 0px 1px 3px 0px rgba(16, 24, 40, 0.10);
+            --shadow-md: 0px 2px 4px -2px rgba(16, 24, 40, 0.06), 0px 4px 8px -2px rgba(16, 24, 40, 0.10);
+            --shadow-lg: 0px 4px 6px -2px rgba(16, 24, 40, 0.03), 0px 12px 16px -4px rgba(16, 24, 40, 0.08);
+        }
+
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         
         #map {
@@ -20,50 +115,132 @@
         
         .controls {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: var(--spacing-3);
+            right: var(--spacing-3);
             z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            background: var(--gray-25);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--gray-200);
+            padding: var(--spacing-3);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            min-width: 200px;
         }
         
-        .control-group {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        .control-row {
+            margin-bottom: var(--spacing-2);
         }
         
-        .control-group label {
+        .control-row:last-child {
+            margin-bottom: 0;
+        }
+        
+        .control-label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 12px;
-            color: #333;
+            margin-bottom: var(--spacing-1);
+            font-weight: 500;
+            font-size: var(--text-xs);
+            line-height: 16px;
+            color: var(--gray-700);
         }
         
         .meta-info {
-            font-weight: normal;
-            color: #666;
+            font-weight: 400;
+            color: var(--gray-500);
             font-size: 11px;
+            line-height: 14px;
         }
         
-        .control-group select {
-            width: 150px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
+        .control-select {
+            width: 100%;
+            height: 32px;
+            padding: 6px var(--spacing-2);
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            font-size: var(--text-xs);
+            line-height: 16px;
+            color: var(--gray-900);
+            background: var(--gray-25);
+            box-shadow: var(--shadow-xs);
+            transition: all 0.2s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg width='16' height='16' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='m5 7 3 3 3-3' stroke='%23667085' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right var(--spacing-2) center;
+            padding-right: 28px;
         }
         
-        .weather-info {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 5px;
-            font-size: 12px;
-            color: #666;
+        .control-select:hover {
+            border-color: var(--gray-400);
+        }
+        
+        .control-select:focus {
+            outline: none;
+            border-color: var(--primary-300);
+            box-shadow: var(--shadow-xs), 0px 0px 0px 3px var(--primary-100);
+        }
+        
+        .refresh-button {
+            width: 100%;
+            height: 32px;
+            padding: 6px var(--spacing-3);
+            background: var(--primary-600);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: var(--text-xs);
+            font-weight: 600;
+            line-height: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-xs);
+        }
+        
+        .refresh-button:hover {
+            background: var(--primary-700);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .refresh-button:active {
+            background: var(--primary-800);
+            box-shadow: var(--shadow-xs);
+        }
+        
+        .refresh-button:focus {
+            outline: none;
+            box-shadow: var(--shadow-xs), 0px 0px 0px 3px var(--primary-100);
+        }
+        
+        .refresh-button:disabled {
+            background: var(--gray-300);
+            color: var(--gray-500);
+            cursor: not-allowed;
+            box-shadow: var(--shadow-xs);
+        }
+        
+        .divider {
+            height: 1px;
+            background: var(--gray-200);
+            margin: var(--spacing-2) 0;
+        }
+        
+        /* Custom scrollbar for popups */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--gray-100);
+            border-radius: var(--radius-sm);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-300);
+            border-radius: var(--radius-sm);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gray-400);
         }
     </style>
 </head>
@@ -71,9 +248,9 @@
     <div id="map"></div>
     
     <div class="controls">
-        <div class="control-group">
-            <label for="daytime">Denní doba <span id="current-time" class="meta-info"></span></label>
-            <select id="daytime">
+        <div class="control-row">
+            <label for="daytime" class="control-label">Denní doba <span id="current-time" class="meta-info"></span></label>
+            <select id="daytime" class="control-select">
                 <option value="dawn">Úsvit</option>
                 <option value="day">Den</option>
                 <option value="dusk">Soumrak</option>
@@ -81,13 +258,21 @@
             </select>
         </div>
         
-        <div class="control-group">
-            <label for="weather">Počasí <span id="current-weather" class="meta-info"></span></label>
-            <select id="weather">
+        <div class="control-row">
+            <label for="weather" class="control-label">Počasí <span id="current-weather" class="meta-info"></span></label>
+            <select id="weather" class="control-select">
                 <option value="clear">Jasno</option>
                 <option value="rain">Déšť</option>
                 <option value="snow">Sníh</option>
             </select>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <div class="control-row">
+            <button id="refresh-button" class="refresh-button">
+                <span id="refresh-text">Obnovit data</span>
+            </button>
         </div>
     </div>
 
@@ -103,6 +288,17 @@
             [14.4363522, 50.0882928], // Southwest corner
             [14.4752922, 50.1032842]  // Northeast corner
         ];
+        
+        // Airtable configuration
+        const AIRTABLE_CONFIG = {
+            baseId: 'appakA8qOKhNzBh8a',
+            tableName: 'Issues',
+            apiUrl: 'https://api.airtable.com/v0'
+        };
+        
+        // Global variables for POI data
+        let poisData = null;
+        let lastFetchTime = null;
         
         // Initialize map
         const map = new mapboxgl.Map({
@@ -325,12 +521,253 @@
             }
         }
         
+        // Fetch POI data from Airtable
+        async function fetchAirtablePOIs() {
+            try {
+                const url = `${AIRTABLE_CONFIG.apiUrl}/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tableName}`;
+                console.log('Fetching from Airtable URL:', url);
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': 'Bearer pat2g4cJvHQBVK1yU.2a7d0df84a80b2acf65272ae42d2ec645b09ca24e89212676b797890d6b3d328'
+                    }
+                });
+                
+                console.log('Airtable response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Airtable API error details:', errorText);
+                    throw new Error(`Airtable API error: ${response.status} - ${errorText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Airtable data received:', data);
+                lastFetchTime = new Date();
+                
+                return data.records || [];
+                
+            } catch (error) {
+                console.error('Failed to fetch POI data from Airtable:', error);
+                
+                // Return sample data for testing if API fails
+                console.log('Using fallback sample data for testing');
+                return [
+                    {
+                        id: 'sample1',
+                        fields: {
+                            id: 1,
+                            'Issue name': 'Test Issue 1',
+                            'Location': 'Karlín',
+                            brief: 'This is a test issue for debugging',
+                            description: 'Detailed description of the test issue',
+                            latitude: 50.0920,
+                            longitude: 14.4500,
+                            created: '2025-01-15',
+                            'last-update': '2025-01-15'
+                        }
+                    }
+                ];
+            }
+        }
+        
+        // Transform Airtable records to GeoJSON format
+        function transformToGeoJSON(airtableRecords) {
+            const features = airtableRecords
+                .filter(record => {
+                    // Only include records with valid GPS coordinates
+                    const lat = record.fields.latitude;
+                    const lng = record.fields.longitude;
+                    return lat !== null && lng !== null && 
+                           typeof lat === 'number' && typeof lng === 'number' &&
+                           !isNaN(lat) && !isNaN(lng);
+                })
+                .map(record => {
+                    const fields = record.fields;
+                    
+                    return {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [fields.longitude, fields.latitude]
+                        },
+                        properties: {
+                            id: fields.id || record.id,
+                            name: (fields.Location ? fields.Location + ': ' : '') + (fields['Issue name'] || 'Unnamed Issue'),
+                            description: fields.brief || '',
+                            markup: fields.description || '',
+                            created: fields.created || '',
+                            updated: fields['last-update'] || '',
+                            location: fields.Location || '',
+                            issueName: fields['Issue name'] || '',
+                            status: fields.status || fields.Status || 'open'
+                        }
+                    };
+                });
+            
+            return {
+                type: 'FeatureCollection',
+                features: features
+            };
+        }
+        
+        // Load and process POI data
+        async function loadPOIData() {
+            try {
+                const airtableRecords = await fetchAirtablePOIs();
+                poisData = transformToGeoJSON(airtableRecords);
+                
+                console.log(`Loaded ${poisData.features.length} POIs from Airtable`);
+                return poisData;
+                
+            } catch (error) {
+                console.error('Failed to load POI data:', error);
+                
+                // Return empty GeoJSON collection as fallback
+                poisData = {
+                    type: 'FeatureCollection',
+                    features: []
+                };
+                return poisData;
+            }
+        }
+        
+        // Add POI layers to the map
+        function addPOILayers() {
+            if (!poisData || !poisData.features.length) {
+                console.log('No POI data available to display');
+                return;
+            }
+            
+            // Remove existing POI layers if they exist
+            if (map.getLayer('poi-labels')) {
+                map.removeLayer('poi-labels');
+            }
+            if (map.getLayer('poi-icons')) {
+                map.removeLayer('poi-icons');
+            }
+            if (map.getLayer('poi-layer')) {
+                map.removeLayer('poi-layer');
+            }
+            if (map.getSource('pois')) {
+                map.removeSource('pois');
+            }
+            
+            // Add POI data source
+            map.addSource('pois', {
+                type: 'geojson',
+                data: poisData
+            });
+            
+            // Add POI circle markers with status-based colors
+            map.addLayer({
+                id: 'poi-layer',
+                type: 'circle',
+                source: 'pois',
+                paint: {
+                    'circle-radius': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        13, 5,
+                        16, 8
+                    ],
+                    'circle-color': [
+                        'match',
+                        ['get', 'status'],
+                        'open', '#F04438',        // error-500 - red for open issues
+                        'new', '#F04438',         // error-500 - red for new issues
+                        'in-progress', '#F79009', // warning-500 - orange for in-progress
+                        'progress', '#F79009',    // warning-500 - orange for progress
+                        'resolved', '#12B76A',    // success-500 - green for resolved
+                        'closed', '#12B76A',      // success-500 - green for closed
+                        'done', '#12B76A',        // success-500 - green for done
+                        '#667085'                 // gray-500 - default gray
+                    ],
+                    'circle-stroke-width': 1.5,
+                    'circle-stroke-color': '#ffffff',
+                    'circle-opacity': 0.9
+                }
+            });
+            
+            // Add POI status icons
+            map.addLayer({
+                id: 'poi-icons',
+                type: 'symbol',
+                source: 'pois',
+                layout: {
+                    'icon-image': [
+                        'match',
+                        ['get', 'status'],
+                        'open', 'circle-11',
+                        'new', 'circle-11',
+                        'in-progress', 'circle-11',
+                        'progress', 'circle-11',
+                        'resolved', 'circle-11',
+                        'closed', 'circle-11',
+                        'done', 'circle-11',
+                        'circle-11'
+                    ],
+                    'icon-size': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        13, 0.3,
+                        16, 0.5
+                    ],
+                    'icon-color': [
+                        'match',
+                        ['get', 'status'],
+                        'open', '#ffffff',
+                        'new', '#ffffff',
+                        'in-progress', '#ffffff',
+                        'progress', '#ffffff',
+                        'resolved', '#ffffff',
+                        'closed', '#ffffff',
+                        'done', '#ffffff',
+                        '#ffffff'
+                    ]
+                }
+            });
+            
+            // Add POI labels
+            map.addLayer({
+                id: 'poi-labels',
+                type: 'symbol',
+                source: 'pois',
+                layout: {
+                    'text-field': ['get', 'name'],
+                    'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                    'text-size': [
+                        'interpolate',
+                        ['linear'],
+                        ['zoom'],
+                        13, 10,
+                        16, 12
+                    ],
+                    'text-offset': [0, 1.8],
+                    'text-anchor': 'top',
+                    'text-max-width': 8
+                },
+                paint: {
+                    'text-color': '#2C3E50',
+                    'text-halo-color': '#ffffff',
+                    'text-halo-width': 1.5
+                }
+            });
+            
+            console.log(`Added ${poisData.features.length} POIs to map`);
+        }
+        
         
         // Initialize map with current settings
         async function initializeMap() {
             readURLParams();
             configureMapStyle();
             await updateCurrentConditions();
+            await loadPOIData();
+            addPOILayers();
+            addPOIInteractions();
             updateURLParams();
         }
         
@@ -346,6 +783,222 @@
             updateURLParams();
             updateMapEffects();
         });
+
+        // Refresh button event listener
+        document.getElementById('refresh-button').addEventListener('click', manualRefresh);
+
+        // Get status display information
+        function getStatusInfo(status) {
+            const statusMap = {
+                'open': { label: 'Otevřené', color: '#F04438', bgColor: '#FEE4E2' },
+                'new': { label: 'Nové', color: '#F04438', bgColor: '#FEE4E2' },
+                'in-progress': { label: 'Probíhá', color: '#F79009', bgColor: '#FEF0C7' },
+                'progress': { label: 'Probíhá', color: '#F79009', bgColor: '#FEF0C7' },
+                'resolved': { label: 'Vyřešené', color: '#12B76A', bgColor: '#D1FADF' },
+                'closed': { label: 'Uzavřené', color: '#12B76A', bgColor: '#D1FADF' },
+                'done': { label: 'Hotové', color: '#12B76A', bgColor: '#D1FADF' }
+            };
+            
+            return statusMap[status] || { label: status || 'Neznámé', color: '#667085', bgColor: '#F2F4F7' };
+        }
+
+        // POI interaction handlers
+        function addPOIInteractions() {
+            // Click handler for POI popups (both layer and icons)
+            const handlePOIClick = (e) => {
+                const coordinates = e.features[0].geometry.coordinates.slice();
+                const props = e.features[0].properties;
+
+                // Ensure the popup appears at the correct location
+                while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+                    coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+                }
+
+                // Format dates for display
+                const createdDate = props.created ? new Date(props.created).toLocaleDateString('cs-CZ') : 'N/A';
+                const updatedDate = props.updated ? new Date(props.updated).toLocaleDateString('cs-CZ') : 'N/A';
+                
+                // Get status display info
+                const statusInfo = getStatusInfo(props.status);
+
+                // Create popup content with Untitled UI styling
+                let popupContent = `
+                    <div style="
+                        max-width: 320px; 
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                        -webkit-font-smoothing: antialiased;
+                    ">
+                        <h3 style="
+                            margin: 0 0 12px 0; 
+                            color: var(--gray-900); 
+                            font-size: 16px; 
+                            font-weight: 600;
+                            line-height: 24px;
+                        ">${props.name}</h3>
+                        
+                        <div style="
+                            display: inline-block;
+                            padding: 2px 8px;
+                            background: ${statusInfo.bgColor};
+                            color: ${statusInfo.color};
+                            border-radius: 12px;
+                            font-size: 11px;
+                            font-weight: 500;
+                            line-height: 16px;
+                            margin-bottom: 12px;
+                        ">${statusInfo.label}</div>
+                `;
+                
+                if (props.description) {
+                    popupContent += `<p style="
+                        margin: 0 0 12px 0; 
+                        color: var(--gray-600); 
+                        font-size: 14px;
+                        line-height: 20px;
+                        font-weight: 400;
+                    ">${props.description}</p>`;
+                }
+                
+                popupContent += `
+                        <div style="
+                            border-top: 1px solid var(--gray-200); 
+                            padding-top: 12px; 
+                            margin-top: 12px;
+                        ">
+                            <div style="
+                                color: var(--gray-500);
+                                font-size: 12px;
+                                line-height: 18px;
+                                font-weight: 400;
+                            ">
+                                <div style="margin-bottom: 4px;">
+                                    <strong style="color: var(--gray-600);">Vytvořeno:</strong> ${createdDate}
+                                </div>
+                                <div>
+                                    <strong style="color: var(--gray-600);">Aktualizováno:</strong> ${updatedDate}
+                                </div>
+                            </div>
+                        </div>
+                `;
+                
+                if (props.markup && props.markup.trim()) {
+                    popupContent += `
+                        <div style="
+                            margin-top: 12px; 
+                            padding-top: 12px; 
+                            border-top: 1px solid var(--gray-200);
+                        ">
+                            <details style="margin: 0;">
+                                <summary style="
+                                    cursor: pointer; 
+                                    color: var(--primary-600);
+                                    font-size: 14px;
+                                    font-weight: 500;
+                                    line-height: 20px;
+                                    list-style: none;
+                                    padding: 8px 0;
+                                ">Zobrazit detaily</summary>
+                                <div style="
+                                    margin-top: 8px; 
+                                    font-size: 13px; 
+                                    color: var(--gray-600); 
+                                    line-height: 18px;
+                                    max-height: 150px; 
+                                    overflow-y: auto;
+                                    padding: 8px 0;
+                                ">
+                                    ${props.markup.replace(/\n/g, '<br>')}
+                                </div>
+                            </details>
+                        </div>
+                    `;
+                }
+                
+                popupContent += `</div>`;
+
+                new mapboxgl.Popup({
+                    maxWidth: '320px'
+                })
+                    .setLngLat(coordinates)
+                    .setHTML(popupContent)
+                    .addTo(map);
+            };
+
+            // Add click handlers for both layers
+            map.on('click', 'poi-layer', handlePOIClick);
+            map.on('click', 'poi-icons', handlePOIClick);
+
+            // Mouse enter/leave handlers for hover effects
+            map.on('mouseenter', 'poi-layer', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', 'poi-layer', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            
+            map.on('mouseenter', 'poi-icons', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            map.on('mouseleave', 'poi-icons', () => {
+                map.getCanvas().style.cursor = '';
+            });
+        }
+
+        // Refresh POI data
+        async function refreshPOIData() {
+            try {
+                console.log('Refreshing POI data from Airtable...');
+                await loadPOIData();
+                
+                // Update the map data source if it exists
+                if (map.getSource('pois')) {
+                    map.getSource('pois').setData(poisData);
+                    console.log(`Refreshed ${poisData.features.length} POIs`);
+                } else {
+                    // If layers don't exist yet, add them
+                    addPOILayers();
+                    addPOIInteractions();
+                }
+                
+            } catch (error) {
+                console.error('Failed to refresh POI data:', error);
+            }
+        }
+
+        // Manual refresh function
+        async function manualRefresh() {
+            const refreshButton = document.getElementById('refresh-button');
+            const refreshText = document.getElementById('refresh-text');
+            
+            try {
+                // Disable button and show loading state
+                refreshButton.disabled = true;
+                refreshText.textContent = 'Obnovování...';
+                
+                console.log('Manual refresh triggered');
+                
+                // Update current conditions (time and weather)
+                await updateCurrentConditions();
+                
+                // Refresh POI data from Airtable
+                await refreshPOIData();
+                
+                // Update meta labels
+                updateMetaLabels();
+                
+                console.log('Manual refresh completed');
+                
+            } catch (error) {
+                console.error('Manual refresh failed:', error);
+            } finally {
+                // Re-enable button
+                refreshButton.disabled = false;
+                refreshText.textContent = 'Obnovit data';
+            }
+        }
+
         
         // Initialize when map loads
         map.on('load', initializeMap);
@@ -361,6 +1014,11 @@
             updateCurrentConditions();
             updateMetaLabels();
         }, 120000);
+        
+        // Refresh POI data every 5 minutes
+        setInterval(() => {
+            refreshPOIData();
+        }, 300000);
     </script>
 </body>
 </html>
