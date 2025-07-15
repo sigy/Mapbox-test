@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Karlína</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .control-group {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .meta-info {
+            font-weight: normal;
+            color: #666;
+            font-size: 11px;
+        }
+        
+        .control-group select {
+            width: 150px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .weather-info {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="controls">
+        <div class="control-group">
+            <label for="daytime">Denní doba <span id="current-time" class="meta-info"></span></label>
+            <select id="daytime">
+                <option value="dawn">Úsvit</option>
+                <option value="day">Den</option>
+                <option value="dusk">Soumrak</option>
+                <option value="night">Noc</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="weather">Počasí <span id="current-weather" class="meta-info"></span></label>
+            <select id="weather">
+                <option value="clear">Jasno</option>
+                <option value="rain">Déšť</option>
+                <option value="snow">Sníh</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        // Mapbox access token
+        mapboxgl.accessToken = 'pk.eyJ1Ijoic2lneSIsImEiOiJjbWJ0ZWh3YjcwMmNsMmpzMDhkemdoNDJ1In0.J1eMWu3BYTZbAUqt4bqgeg';
+        
+        // Karlín district coordinates (Prague, Czech Republic)
+        const karlinCenter = [14.4492, 50.0935];
+        
+        // Karlín district bounds
+        const karlinBounds = [
+            [14.4363522, 50.0882928], // Southwest corner
+            [14.4752922, 50.1032842]  // Northeast corner
+        ];
+        
+        // Initialize map
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/sigy/cmd4jrydw00n401s99pydbqgw',
+            center: karlinCenter,
+            zoom: 14,
+            bearing: -18.40,
+            pitch: 35.50,
+            minZoom: 13,
+            maxBounds: karlinBounds,
+            language: 'cs'
+        });
+        
+        // Current state
+        let currentLightPreset = 'day';
+        let currentWeather = 'clear';
+        let realTimePreset = 'day';
+        let realWeather = 'clear';
+        
+        // Zoom-based reveal function for weather effects
+        const zoomBasedReveal = (value) => {
+            return [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                11,
+                0.0,
+                13,
+                value
+            ];
+        };
+        
+        // Get current time-based light preset for Prague timezone
+        function getCurrentLightPreset() {
+            const now = new Date();
+            const pragueTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Prague"}));
+            const hour = pragueTime.getHours();
+            
+            if (hour >= 5 && hour < 8) return 'dawn';
+            if (hour >= 8 && hour < 17) return 'day';
+            if (hour >= 17 && hour < 20) return 'dusk';
+            return 'night';
+        }
+        
+        
+        // Fetch current weather for Prague/Karlín using Open-Meteo (free public API)
+        async function fetchCurrentWeather() {
+            try {
+                // Open-Meteo API - free, no API key required
+                const response = await fetch(
+                    `https://api.open-meteo.com/v1/forecast?latitude=${karlinCenter[1]}&longitude=${karlinCenter[0]}&current_weather=true&timezone=Europe/Prague`
+                );
+                
+                if (!response.ok) {
+                    throw new Error('Weather API not available');
+                }
+                
+                const data = await response.json();
+                const weatherCode = data.current_weather.weathercode;
+                
+                // Map WMO weather codes to our options
+                // WMO codes: https://open-meteo.com/en/docs
+                const weatherMap = {
+                    0: 'clear',     // Clear sky
+                    1: 'clear',     // Mainly clear
+                    2: 'clear',     // Partly cloudy
+                    3: 'clear',     // Overcast
+                    45: 'clear',    // Fog
+                    48: 'clear',    // Depositing rime fog
+                    51: 'rain',     // Light drizzle
+                    53: 'rain',     // Moderate drizzle
+                    55: 'rain',     // Dense drizzle
+                    56: 'rain',     // Light freezing drizzle
+                    57: 'rain',     // Dense freezing drizzle
+                    61: 'rain',     // Slight rain
+                    63: 'rain',     // Moderate rain
+                    65: 'rain',     // Heavy rain
+                    66: 'rain',     // Light freezing rain
+                    67: 'rain',     // Heavy freezing rain
+                    71: 'snow',     // Slight snow fall
+                    73: 'snow',     // Moderate snow fall
+                    75: 'snow',     // Heavy snow fall
+                    77: 'snow',     // Snow grains
+                    80: 'rain',     // Slight rain showers
+                    81: 'rain',     // Moderate rain showers
+                    82: 'rain',     // Violent rain showers
+                    85: 'snow',     // Slight snow showers
+                    86: 'snow',     // Heavy snow showers
+                    95: 'rain',     // Thunderstorm
+                    96: 'rain',     // Thunderstorm with slight hail
+                    99: 'rain'      // Thunderstorm with heavy hail
+                };
+                
+                return weatherMap[weatherCode] || 'clear';
+                
+            } catch (error) {
+                console.log('Using simulated weather data');
+                // Fallback to simulated weather based on season/time
+                const month = new Date().getMonth();
+                const isWinter = month >= 11 || month <= 2;
+                const isRainy = month >= 3 && month <= 5 || month >= 9 && month <= 10;
+                
+                if (isWinter && Math.random() < 0.3) return 'snow';
+                if (isRainy && Math.random() < 0.4) return 'rain';
+                return 'clear';
+            }
+        }
+        
+        // URL parameter management
+        function updateURLParams() {
+            const url = new URL(window.location);
+            url.searchParams.set('daytime', currentLightPreset);
+            url.searchParams.set('weather', currentWeather);
+            window.history.replaceState({}, '', url);
+        }
+        
+        function readURLParams() {
+            const url = new URL(window.location);
+            const daytimeParam = url.searchParams.get('daytime');
+            const weatherParam = url.searchParams.get('weather');
+            
+            if (daytimeParam && ['dawn', 'day', 'dusk', 'night'].includes(daytimeParam)) {
+                currentLightPreset = daytimeParam;
+            }
+            
+            if (weatherParam && ['clear', 'rain', 'snow'].includes(weatherParam)) {
+                currentWeather = weatherParam;
+            }
+        }
+        
+        // Update meta labels with current time and weather
+        function updateMetaLabels() {
+            const now = new Date();
+            const pragueTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Prague"}));
+            const timeString = pragueTime.toLocaleTimeString('cs-CZ', {hour: '2-digit', minute: '2-digit'});
+            
+            document.getElementById('current-time').textContent = `(${timeString})`;
+            
+            // Show current weather condition
+            const weatherLabels = {
+                'clear': 'jasno',
+                'rain': 'déšť',
+                'snow': 'sníh'
+            };
+            document.getElementById('current-weather').textContent = `(${weatherLabels[realWeather] || 'načítá...'}) `;
+        }
+        
+        // Update current conditions from real data
+        async function updateCurrentConditions() {
+            realTimePreset = getCurrentLightPreset();
+            realWeather = await fetchCurrentWeather();
+            
+            // If URL params are not set, use real conditions
+            if (!new URL(window.location).searchParams.has('daytime')) {
+                currentLightPreset = realTimePreset;
+                document.getElementById('daytime').value = currentLightPreset;
+            }
+            
+            if (!new URL(window.location).searchParams.has('weather')) {
+                currentWeather = realWeather;
+                document.getElementById('weather').value = currentWeather;
+            }
+            
+            updateMetaLabels();
+            updateMapEffects();
+        }
+        
+        
+        // Configure map style properties
+        function configureMapStyle() {
+            // Configure font
+            map.setConfigProperty('basemap', 'font', 'Roboto Mono');
+            
+            // Show 3D models
+            map.setConfigProperty('basemap', 'show3dObjects', true);
+            
+            // Configure label visibility
+            map.setConfigProperty('basemap', 'showPlaceLabels', true);
+            map.setConfigProperty('basemap', 'showTransitLabels', true);
+            map.setConfigProperty('basemap', 'showRoadLabels', true);
+            map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
+        }
+        
+        // Update map lighting and weather effects
+        function updateMapEffects() {
+            // Update light preset
+            map.setConfigProperty('basemap', 'lightPreset', currentLightPreset);
+            
+            // Clear existing weather effects
+            map.setRain(null);
+            map.setSnow(null);
+            
+            // Apply weather effects
+            if (currentWeather === 'rain') {
+                map.setRain({
+                    density: zoomBasedReveal(0.5),
+                    intensity: 1.0,
+                    color: '#a8adbc',
+                    opacity: 0.7,
+                    vignette: zoomBasedReveal(1.0),
+                    'vignette-color': '#464646',
+                    direction: [0, 80],
+                    'droplet-size': [2.6, 18.2],
+                    'distortion-strength': 0.7,
+                    'center-thinning': 0
+                });
+            } else if (currentWeather === 'snow') {
+                map.setSnow({
+                    density: zoomBasedReveal(0.85),
+                    intensity: 1.0,
+                    'center-thinning': 0.1,
+                    direction: [0, 50],
+                    opacity: 1.0,
+                    color: '#ffffff',
+                    'flake-size': 0.71,
+                    vignette: zoomBasedReveal(0.3),
+                    'vignette-color': '#ffffff'
+                });
+            }
+        }
+        
+        
+        // Initialize map with current settings
+        async function initializeMap() {
+            readURLParams();
+            configureMapStyle();
+            await updateCurrentConditions();
+            updateURLParams();
+        }
+        
+        // Event listeners
+        document.getElementById('daytime').addEventListener('change', (e) => {
+            currentLightPreset = e.target.value;
+            updateURLParams();
+            updateMapEffects();
+        });
+        
+        document.getElementById('weather').addEventListener('change', (e) => {
+            currentWeather = e.target.value;
+            updateURLParams();
+            updateMapEffects();
+        });
+        
+        // Initialize when map loads
+        map.on('load', initializeMap);
+        
+        // Also initialize after style loads to ensure config properties work
+        map.on('style.load', () => {
+            configureMapStyle();
+            updateMapEffects();
+        });
+        
+        // Update conditions every 2 minutes
+        setInterval(() => {
+            updateCurrentConditions();
+            updateMetaLabels();
+        }, 120000);
+    </script>
+</body>
+</html>
